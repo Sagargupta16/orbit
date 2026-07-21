@@ -1,0 +1,36 @@
+# deps
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# build
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.tsbuildinfo
+*.tsbuildinfo
+
+# db
+*.db
+*.db-journal
+*.sqlite3
+
+# editor / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ai assistant local
+.claude/settings.local.json
+graphify-out/
