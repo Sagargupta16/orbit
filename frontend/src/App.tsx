@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { ContactsPage } from '@/pages/ContactsPage'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { OAuthCallbackPage } from '@/components/auth/OAuthCallbackPage'
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -21,13 +24,28 @@ const TITLES: Record<string, string> = {
   reminders: 'Reminders',
 }
 
-function App() {
+function Workspace() {
   const [active, setActive] = useState('contacts')
-
   return (
     <AppLayout active={active} onNavigate={setActive}>
       {active === 'contacts' ? <ContactsPage /> : <Placeholder title={TITLES[active] ?? 'orbit'} />}
     </AppLayout>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Workspace />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   )
 }
 
