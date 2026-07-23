@@ -3,6 +3,7 @@ import { primaryNav } from '@/components/layout/nav'
 import { Avatar } from '@/components/ui/Avatar'
 import { MoonIcon, SunIcon } from '@/components/icons'
 import { getStoredTheme, toggleTheme, type Theme } from '@/lib/theme'
+import { useAuth } from '@/lib/auth/useAuth'
 
 interface SidebarProps {
   active: string
@@ -11,6 +12,8 @@ interface SidebarProps {
 
 export function Sidebar({ active, onNavigate }: SidebarProps) {
   const [theme, setTheme] = useState<Theme>(() => getStoredTheme())
+  const { user, logout } = useAuth()
+  const displayName = user?.full_name ?? user?.email ?? 'Account'
 
   return (
     <aside className="hidden w-[260px] shrink-0 flex-col border-r border-border-hairline bg-surface md:flex">
@@ -53,10 +56,16 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
           {theme === 'dark' ? 'Light mode' : 'Dark mode'}
         </button>
         <div className="flex items-center gap-3 rounded-control px-3 py-2">
-          <Avatar name="Sagar Gupta" size={32} />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-text-primary">Sagar Gupta</p>
-            <p className="truncate text-xs text-text-secondary">Owner</p>
+          <Avatar name={displayName} size={32} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-text-primary">{displayName}</p>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="text-xs text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>

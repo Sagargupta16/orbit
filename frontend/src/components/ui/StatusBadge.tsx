@@ -1,4 +1,4 @@
-import type { ContactStatus } from '@/data/contacts'
+import type { ContactStatus } from '@/lib/contacts'
 
 type Variant = 'active' | 'paused' | 'pending' | 'success' | 'error'
 

@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge, Badge } from '@/components/ui/StatusBadge'
+import { Spinner } from '@/components/ui/Spinner'
 import {
   FilterIcon,
   MailIcon,
@@ -12,7 +13,13 @@ import {
   PlusIcon,
   SearchIcon,
 } from '@/components/icons'
-import { demoContacts, type Channel, type Contact } from '@/data/contacts'
+import {
+  createContact,
+  listContacts,
+  type Channel,
+  type Contact,
+} from '@/lib/contacts'
+import { seedContacts } from '@/data/seed'
 
 const CHANNEL_ICON: Record<Channel, typeof MailIcon> = {
   email: MailIcon,
@@ -27,25 +34,41 @@ const CHANNEL_LABEL: Record<Channel, string> = {
 }
 
 function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
+  const d = new Date(iso)
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${months[m - 1]} ${d}, ${y}`
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
 }
 
 export function ContactsPage() {
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [loading, setLoading] = useState(true)
+  const [seeding, setSeeding] = useState(false)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      setContacts(await listContacts())
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return demoContacts
-    return demoContacts.filter(
+    if (!q) return contacts
+    return contacts.filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
+        (c.email ?? '').toLowerCase().includes(q) ||
         c.circle.toLowerCase().includes(q),
     )
-  }, [query])
+  }, [query, contacts])
 
   function toggleRow(id: string) {
     setSelected((prev) => {
@@ -57,7 +80,17 @@ export function ContactsPage() {
   }
 
   function toggleAll(checked: boolean) {
-    setSelected(checked ? new Set(filtered.map((c) => c.id)) : new Set())
+    setSelected(checked ? new Set(filtered.map((c) => String(c.id))) : new Set())
+  }
+
+  async function handleSeed() {
+    setSeeding(true)
+    try {
+      for (const c of seedContacts) await createContact(c)
+      await load()
+    } finally {
+      setSeeding(false)
+    }
   }
 
   const columns: Column<Contact>[] = [
@@ -105,17 +138,17 @@ export function ContactsPage() {
       },
     },
     {
-      key: 'addedDate',
+      key: 'created_at',
       header: 'Added',
       mobileLabel: 'Added',
-      sortValue: (c) => c.addedDate,
-      render: (c) => <span className="text-text-secondary">{formatDate(c.addedDate)}</span>,
+      sortValue: (c) => c.created_at,
+      render: (c) => <span className="text-text-secondary">{formatDate(c.created_at)}</span>,
     },
     {
-      key: 'lastInteraction',
+      key: 'last_interaction',
       header: 'Last Interaction',
       mobileLabel: 'Last seen',
-      render: (c) => <span className="text-text-secondary">{c.lastInteraction}</span>,
+      render: (c) => <span className="text-text-secondary">{c.last_interaction ?? '-'}</span>,
     },
     {
       key: 'actions',
@@ -176,26 +209,40 @@ export function ContactsPage() {
       {selected.size > 0 ? (
         <div className="flex items-center gap-3 text-sm text-text-secondary">
           <Badge variant="active">{`${selected.size} selected`}</Badge>
-          <button
-            type="button"
-            onClick={() => setSelected(new Set())}
-            className="hover:text-text-primary"
-          >
+          <button type="button" onClick={() => setSelected(new Set())} className="hover:text-text-primary">
             Clear
           </button>
         </div>
       ) : null}
 
-      <DataTable
-        rows={filtered}
-        columns={columns}
-        rowKey={(c) => c.id}
-        selectable
-        selectedIds={selected}
-        onToggleRow={toggleRow}
-        onToggleAll={toggleAll}
-        emptyMessage="No contacts match your search."
-      />
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Spinner />
+        </div>
+      ) : contacts.length === 0 ? (
+        <div className="rounded-card bg-surface px-6 py-16 text-center shadow-sm">
+          <p className="text-sm text-text-secondary">No contacts yet.</p>
+          <button
+            type="button"
+            onClick={handleSeed}
+            disabled={seeding}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-control bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
+          >
+            {seeding ? 'Adding...' : 'Add sample contacts'}
+          </button>
+        </div>
+      ) : (
+        <DataTable
+          rows={filtered}
+          columns={columns}
+          rowKey={(c) => String(c.id)}
+          selectable
+          selectedIds={selected}
+          onToggleRow={toggleRow}
+          onToggleAll={toggleAll}
+          emptyMessage="No contacts match your search."
+        />
+      )}
     </PageContainer>
   )
 }
