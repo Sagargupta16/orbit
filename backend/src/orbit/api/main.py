@@ -19,8 +19,8 @@ from orbit.config.settings import settings
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Create and dispose the shared httpx client used for OAuth calls.
 
-    On Vercel, Mangum runs with lifespan="off"; deps.get_http_client creates
-    the client lazily there instead.
+    If a serverless runtime skips the lifespan, deps.get_http_client creates
+    the client lazily instead.
     """
     app.state.http_client = httpx.AsyncClient(timeout=10.0)
     yield

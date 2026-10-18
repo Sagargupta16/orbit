@@ -1,6 +1,6 @@
 [project]
 name = "orbit"
-version = "0.1.1"
+version = "0.1.2"
 description = "Personal CRM backend -- contacts, connections, and interaction tracking"
 requires-python = ">=3.13"
 license = { text = "MIT" }
@@ -15,7 +15,6 @@ dependencies = [
     "pyjwt>=2.10.1",
     "httpx>=0.28.1",
     "psycopg[binary]>=3.2.3",
-    "mangum>=0.19.0",
 ]
 
 [dependency-groups]

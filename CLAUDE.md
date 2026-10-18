@@ -12,7 +12,7 @@
 
 orbit is a personal CRM: contacts, connections, and interaction tracking in a tabular relationship dashboard. Single-user-scoped data behind OAuth, same operating model as ledger-sync.
 
-Deploy: frontend live on GitHub Pages (`sagargupta.online/orbit/`); backend on Vercel serverless (`backend/vercel.json` + Mangum in `backend/api/index.py`, but no Vercel project exists yet); Neon PostgreSQL project `orbit` (Singapore, `aws-ap-southeast-1`) with migrations applied.
+Deploy: frontend live on GitHub Pages (`sagargupta.online/orbit/`); backend on Vercel serverless (`backend/vercel.json`, `backend/api/index.py` exports the ASGI `app`, deps from `backend/requirements.txt`; no Vercel project exists yet); Neon PostgreSQL project `orbit` (Singapore, `aws-ap-southeast-1`) with migrations applied.
 
 ## Stack
 
@@ -56,7 +56,8 @@ cd backend && uv run pytest tests/ -v
 - Frontend package deps live in `frontend/package.json`; root `package.json` only has `concurrently`. Run installs in the right directory.
 - `GITHUB_PAGES=true` flips Vite `base` to `/orbit/` -- production links break if forgotten in the deploy workflow.
 - mypy runs in strict mode from `pyproject.toml` (`uv run mypy`, no path args needed).
-- Mangum runs with `lifespan="off"` on Vercel, so `app.state.http_client` is never created there; `api/deps.py:get_http_client` builds it lazily. Keep that fallback.
+- A serverless runtime may skip the FastAPI lifespan, so `app.state.http_client` can be missing; `api/deps.py:get_http_client` builds it lazily. Keep that fallback.
+- Vercel installs from `backend/requirements.txt` (its first line `.` installs the `src/orbit` package). Regenerate it with `uv export --no-dev --no-hashes --no-emit-project --no-annotate` whenever runtime deps change, and keep the header and the `.` line.
 - Without the `VITE_API_BASE_URL` repo variable the Pages build calls `sagargupta.online/api/...`, which 404s, and the sign-in screen shows "Could not reach the server".
 
 ## Repo-specific rules
