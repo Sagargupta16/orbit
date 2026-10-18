@@ -12,7 +12,7 @@
 
 orbit is a personal CRM: contacts, connections, and interaction tracking in a tabular relationship dashboard. Single-user-scoped data behind OAuth, same operating model as ledger-sync.
 
-Deploy: frontend live on GitHub Pages (`sagargupta.online/orbit/`); backend on Vercel serverless (`backend/vercel.json`, `backend/api/index.py` exports the ASGI `app`, deps from `backend/requirements.txt`; no Vercel project exists yet); Neon PostgreSQL project `orbit` (Singapore, `aws-ap-southeast-1`) with migrations applied.
+Deploy: frontend live on GitHub Pages (`sagargupta.online/orbit/`); backend on Vercel serverless (`backend/vercel.json`, `backend/api/index.py` exports the ASGI `app`, deps from `backend/requirements.txt`; Vercel project `orbit-api` in team `sagargupta16s-projects`, git-linked to `main`, live at `https://orbit-api-eight.vercel.app`); Neon PostgreSQL project `orbit` (Singapore, `aws-ap-southeast-1`) with migrations applied.
 
 ## Stack
 
@@ -20,7 +20,7 @@ Deploy: frontend live on GitHub Pages (`sagargupta.online/orbit/`); backend on V
 - **Framework**: FastAPI + SQLAlchemy 2 + Alembic / React 19 + Vite + Tailwind CSS 4
 - **Database**: SQLite dev (`./orbit.db`), Neon PostgreSQL prod
 - **Package manager**: uv (backend), pnpm (frontend + root)
-- **Deploy target**: GitHub Pages (wired, `deploy-frontend.yml`) + Vercel (config in repo, project not created)
+- **Deploy target**: GitHub Pages (wired, `deploy-frontend.yml`) + Vercel (`orbit-api`, redeploys on every push to `main` that touches `backend/`)
 
 ## Run
 
@@ -70,8 +70,9 @@ cd backend && uv run pytest tests/ -v
 
 - OAuth-only (GitHub, Google) authorization code flow ported from ledger-sync: stateless HMAC-signed `state` from `/api/auth/oauth/providers`, which the callback page also checks against the copy it stored in sessionStorage; JWT access (30 min) and refresh (7 days) tokens carrying `tv` = `User.token_version`, bumped on logout and account delete.
 - Backend env vars (names only): `ORBIT_ENVIRONMENT`, `ORBIT_DATABASE_URL`, `ORBIT_JWT_SECRET_KEY`, `ORBIT_FRONTEND_URL`, `ORBIT_CORS_ORIGINS`, `ORBIT_GITHUB_CLIENT_ID`, `ORBIT_GITHUB_CLIENT_SECRET`, `ORBIT_GOOGLE_CLIENT_ID`, `ORBIT_GOOGLE_CLIENT_SECRET`. Dev auto-generates a JWT secret when unset; any other environment refuses to start without one.
-- Frontend build variable: `VITE_API_BASE_URL` (GitHub repo variable, read by `deploy-frontend.yml`).
-- GitHub OAuth app callback URL: `https://sagargupta.online/orbit/auth/callback/github`. Not created yet.
+- Set on Vercel: `ORBIT_ENVIRONMENT`, `ORBIT_FRONTEND_URL` (plain); `ORBIT_DATABASE_URL` (Neon pooled), `ORBIT_JWT_SECRET_KEY`, `ORBIT_GITHUB_CLIENT_ID`, `ORBIT_GITHUB_CLIENT_SECRET` (sensitive, unreadable after creation). Env changes only apply after a redeploy.
+- Frontend build variable: `VITE_API_BASE_URL` = `https://orbit-api-eight.vercel.app` (GitHub repo variable, read by `deploy-frontend.yml`).
+- GitHub OAuth app `orbit` (github.com/settings/developers), redirect URI `https://sagargupta.online/orbit/auth/callback/github`. Google sign-in is not configured yet.
 
 ## API routes
 
