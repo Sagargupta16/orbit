@@ -1,0 +1,45 @@
+name: Run Database Migrations
+
+on:
+  workflow_call:
+    secrets:
+      ORBIT_DATABASE_URL:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-database-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --locked --no-group dev
+
+      # Neon's direct (non-pooled) endpoint: DDL and Alembic's version lock
+      # are safer outside the transaction-mode pooler.
+      - name: Run Alembic migrations
+        working-directory: backend
+        env:
+          ORBIT_DATABASE_URL: ${{ secrets.ORBIT_DATABASE_URL }}
+        run: |
+          if [ -z "$ORBIT_DATABASE_URL" ]; then
+            echo "::error::The production migration database URL is not configured."
+            exit 1
+          fi
+          uv run --no-sync alembic upgrade head
+          uv run --no-sync alembic current

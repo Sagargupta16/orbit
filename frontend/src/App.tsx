@@ -1,51 +1,37 @@
-import { useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
-import { ContactsPage } from '@/pages/ContactsPage'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { OAuthCallbackPage } from '@/components/auth/OAuthCallbackPage'
-
-function Placeholder({ title }: { title: string }) {
-  return (
-    <PageContainer>
-      <PageHeader title={title} subtitle="Coming soon." />
-      <div className="rounded-card bg-surface px-6 py-16 text-center text-sm text-text-secondary shadow-sm">
-        This section is not built yet.
-      </div>
-    </PageContainer>
-  )
-}
-
-const TITLES: Record<string, string> = {
-  dashboard: 'Dashboard',
-  interactions: 'Interactions',
-  circles: 'Circles',
-  reminders: 'Reminders',
-}
-
-function Workspace() {
-  const [active, setActive] = useState('contacts')
-  return (
-    <AppLayout active={active} onNavigate={setActive}>
-      {active === 'contacts' ? <ContactsPage /> : <Placeholder title={TITLES[active] ?? 'orbit'} />}
-    </AppLayout>
-  )
-}
+import { ToastProvider } from '@/components/ui/Toast'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { ContactsPage } from '@/pages/ContactsPage'
+import { ContactDetailPage } from '@/pages/ContactDetailPage'
+import { InteractionsPage } from '@/pages/InteractionsPage'
+import { CirclesPage } from '@/pages/CirclesPage'
+import { RemindersPage } from '@/pages/RemindersPage'
 
 function App() {
   return (
-    <Routes>
-      <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
-      <Route
-        path="/*"
-        element={
-          <ProtectedRoute>
-            <Workspace />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <ToastProvider>
+      <Routes>
+        <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="contacts" element={<ContactsPage />} />
+          <Route path="contacts/:id" element={<ContactDetailPage />} />
+          <Route path="interactions" element={<InteractionsPage />} />
+          <Route path="circles" element={<CirclesPage />} />
+          <Route path="reminders" element={<RemindersPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </ToastProvider>
   )
 }
 

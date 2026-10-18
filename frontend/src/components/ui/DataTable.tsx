@@ -26,6 +26,8 @@ interface DataTableProps<T> {
   onToggleRow?: (id: string) => void
   onToggleAll?: (checked: boolean) => void
   emptyMessage?: string
+  /** Makes rows (and mobile cards) clickable. Controls inside cells should stopPropagation. */
+  onRowClick?: (row: T) => void
 }
 
 type SortDir = 'asc' | 'desc'
@@ -39,6 +41,7 @@ export function DataTable<T>({
   onToggleRow,
   onToggleAll,
   emptyMessage = 'No records found.',
+  onRowClick,
 }: DataTableProps<T>) {
   const isMobile = useIsMobile()
   const [sortKey, setSortKey] = useState<string | null>(null)
@@ -92,19 +95,28 @@ export function DataTable<T>({
         {sortedRows.map((row) => {
           const id = rowKey(row)
           return (
-            <div key={id} className="rounded-card bg-surface p-4 shadow-sm">
+            <div
+              key={id}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              className={`rounded-card bg-surface p-4 shadow-sm ${onRowClick ? 'cursor-pointer active:bg-surface-subtle' : ''}`}
+            >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 font-semibold text-text-primary">
                   {primary ? primary.render(row) : null}
                 </div>
                 {selectable && selectedIds ? (
-                  <input
-                    type="checkbox"
-                    className="size-4 accent-brand-500"
-                    checked={selectedIds.has(id)}
-                    onChange={() => onToggleRow?.(id)}
-                    aria-label="Select row"
-                  />
+                  <label
+                    className="-m-2 inline-flex size-10 shrink-0 items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      className="size-5 accent-brand-500"
+                      checked={selectedIds.has(id)}
+                      onChange={() => onToggleRow?.(id)}
+                      aria-label="Select row"
+                    />
+                  </label>
                 ) : null}
               </div>
               <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
@@ -175,10 +187,11 @@ export function DataTable<T>({
               return (
                 <tr
                   key={id}
-                  className="border-b border-border-hairline last:border-0 transition-colors hover:bg-surface-subtle"
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  className={`border-b border-border-hairline last:border-0 transition-colors hover:bg-surface-subtle ${onRowClick ? 'cursor-pointer' : ''}`}
                 >
                   {selectable && selectedIds ? (
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         className="size-4 accent-brand-500"

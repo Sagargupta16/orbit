@@ -1,19 +1,17 @@
-import type { ReactNode } from 'react'
+import { Outlet } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
+import { MobileTopBar } from '@/components/layout/MobileTopBar'
 
-interface AppLayoutProps {
-  active: string
-  onNavigate: (id: string) => void
-  children: ReactNode
-}
-
-export function AppLayout({ active, onNavigate, children }: AppLayoutProps) {
+export function AppLayout() {
   return (
     <div className="flex min-h-dvh bg-canvas">
-      <Sidebar active={active} onNavigate={onNavigate} />
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
-      <MobileTabBar active={active} onNavigate={onNavigate} />
+      <Sidebar />
+      <main className="min-w-0 flex-1 pb-24 md:pb-0">
+        <MobileTopBar />
+        <Outlet />
+      </main>
+      <MobileTabBar />
     </div>
   )
 }

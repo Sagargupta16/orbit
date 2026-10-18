@@ -41,7 +41,8 @@ cd backend && uv run pytest tests/ -v
 
 - `backend/src/orbit/api/main.py` -- FastAPI app, routers register here
 - `frontend/src/main.tsx` -- React root
-- `frontend/src/App.tsx` -- routes: `/auth/callback/:provider`, everything else behind `ProtectedRoute`
+- `frontend/src/App.tsx` -- routes: `/`, `/contacts`, `/contacts/:id`, `/interactions`, `/circles`, `/reminders` behind `ProtectedRoute`, plus `/auth/callback/:provider`
+- `frontend/src/lib/api/` -- typed clients per resource; `frontend/src/components/ui/` -- Button, Modal (bottom sheet on phones), ConfirmDialog, Toast, Field, EmptyState, PageSection, DataTable
 
 ## Key files
 
@@ -79,11 +80,17 @@ cd backend && uv run pytest tests/ -v
 - `GET /api/health` -- liveness + version
 - `GET /api/auth/oauth/providers`, `POST /api/auth/oauth/{github,google}/callback`
 - `POST /api/auth/refresh`, `GET|PUT /api/auth/me`, `POST /api/auth/logout`, `DELETE /api/auth/account`
-- `GET|POST /api/contacts`, `PATCH|DELETE /api/contacts/{id}` -- all scoped to the current user
-- See OpenAPI at `/docs` when server is running.
+- `GET|POST /api/contacts` (`?q=` matches name, email, company and notes; `?circle=`, `?status=`), `GET|PATCH|DELETE /api/contacts/{id}`, `POST /api/contacts/bulk-delete`
+- `GET|POST /api/interactions` (`?contact_id=`, `?limit=` up to 200, `?before=` cursor), `PATCH|DELETE /api/interactions/{id}`. Every write recomputes the contact's `last_contacted_at`.
+- `GET|POST /api/reminders` (`?status=open|done|all`, `?contact_id=`), `PATCH|DELETE /api/reminders/{id}`
+- `GET /api/dashboard?today=YYYY-MM-DD` -- totals, circles, recent activity, upcoming reminders, reconnects, birthdays
+- `POST /api/samples?today=` (409 when samples exist), `DELETE /api/samples` -- sample rows are flagged `is_sample`, so removing them never touches real data
+- Everything except health and OAuth is scoped to the current user; another user's row is a 404. See OpenAPI at `/docs` when the server is running.
 
 ## DB schema
 
 - Migrations in `backend/src/orbit/db/migrations/` (`alembic.ini` in `backend/`). Apply with `uv run alembic upgrade head`; it reads `ORBIT_DATABASE_URL`.
 - Every generated revision is run through `ruff check --fix` and `ruff format` by Alembic post-write hooks, so it passes CI unedited.
-- Tables: `users` (OAuth identity, `token_version`), `contacts` (`user_id` FK, cascade delete). Planned next: interactions, tags/circles, reminders.
+- Tables: `users` (OAuth identity, `token_version`); `contacts` (profile fields, `stay_in_touch_days` cadence, `last_contacted_at`, `is_sample`); `interactions` and `reminders` (both `user_id` and `contact_id` FKs with ON DELETE CASCADE). Circles are a fixed enum on `contacts.circle`.
+- CI migrates a scratch SQLite and runs `alembic check` (models and migrations must agree). On `main`, the `migrate` job in `ci.yml` (calling `migrate.yml`, environment `production`) applies migrations to Neon after every check passes, using the `ORBIT_DATABASE_URL` repo secret (Neon's direct, non-pooled URL).
+- Next features, ranked with sources: [docs/ROADMAP.md](docs/ROADMAP.md).

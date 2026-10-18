@@ -11,7 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import orbit
 from orbit.api.auth import router as auth_router
 from orbit.api.contacts import router as contacts_router
+from orbit.api.dashboard import router as dashboard_router
+from orbit.api.interactions import router as interactions_router
 from orbit.api.oauth import router as oauth_router
+from orbit.api.reminders import router as reminders_router
+from orbit.api.samples import router as samples_router
 from orbit.config.settings import settings
 
 
@@ -49,6 +53,10 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(oauth_router)
 app.include_router(contacts_router)
+app.include_router(interactions_router)
+app.include_router(reminders_router)
+app.include_router(dashboard_router)
+app.include_router(samples_router)
 
 
 @app.get("/api/health")
