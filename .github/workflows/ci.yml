@@ -4,6 +4,10 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege for every job; the security job raises its own scope below.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -25,10 +29,10 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: "3.13"
           enable-cache: true
