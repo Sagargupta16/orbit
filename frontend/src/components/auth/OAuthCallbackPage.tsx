@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { completeOAuth } from '@/lib/auth/useAuth'
+import { completeOAuth, OAUTH_STATE_KEY } from '@/lib/auth/useAuth'
 import { useAuthStore } from '@/lib/auth/store'
 
 export function OAuthCallbackPage() {
@@ -19,6 +19,17 @@ export function OAuthCallbackPage() {
     const state = params.get('state')
     if (!provider || !code || !state) {
       setError('Missing OAuth parameters.')
+      return
+    }
+
+    // The state must be the one this browser stashed in startOAuth. The
+    // backend's HMAC check proves the server issued it, not that this tab
+    // started the flow, so a forged callback link would otherwise log the
+    // victim into the attacker's account.
+    const expected = sessionStorage.getItem(OAUTH_STATE_KEY)
+    sessionStorage.removeItem(OAUTH_STATE_KEY)
+    if (!expected || expected !== state) {
+      setError('Sign-in request did not start here. Please try again.')
       return
     }
 

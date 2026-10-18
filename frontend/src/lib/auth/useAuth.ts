@@ -47,6 +47,8 @@ export async function fetchProviders(): Promise<OAuthProviderConfig[]> {
   return data
 }
 
+export const OAUTH_STATE_KEY = 'orbit-oauth-state'
+
 // Build the provider authorize URL and redirect the browser to it.
 export function startOAuth(config: OAuthProviderConfig): void {
   const params = new URLSearchParams({
@@ -57,7 +59,7 @@ export function startOAuth(config: OAuthProviderConfig): void {
     response_type: 'code',
   })
   // Stash state so the callback page can validate it round-tripped.
-  sessionStorage.setItem('orbit-oauth-state', config.state)
+  sessionStorage.setItem(OAUTH_STATE_KEY, config.state)
   window.location.href = `${config.authorize_url}?${params.toString()}`
 }
 

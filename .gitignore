@@ -33,4 +33,7 @@ Thumbs.db
 
 # ai assistant local
 .claude/settings.local.json
+# vendor skills installed by `npx skills`, plus their lockfile
+.claude/skills/
+skills-lock.json
 graphify-out/
