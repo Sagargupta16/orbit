@@ -6,6 +6,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 0.2.0 - 2026-10-18
+
+orbit becomes a working personal CRM. The four "coming soon" pages are real, and contacts can be managed end to end.
+
+### Added
+
+- Contacts: add and edit in a dialog (phone, company, title, birthday, notes, keep-in-touch cadence), delete one, delete selected, and remove all sample data in one step. Search, circle and status filters, and a detail page with the person's interactions and reminders.
+- Interactions: log a call, email, message, meeting or other note against a contact, edit or delete it, and browse a day-grouped feed. Each change recomputes the contact's last contacted time.
+- Keep in touch: a cadence in days per contact, and a due date the dashboard and Reminders page surface.
+- Reminders: open, done and all views, grouped into overdue, today, this week and later, optionally linked to a contact.
+- Circles: members per circle, who is due, and moving a person to another circle.
+- Dashboard: totals, who to reach out to, upcoming reminders and birthdays, recent activity and circle sizes. A first-run screen offers to add a contact or load sample data.
+- Sample data from the server (`POST /api/samples`, `DELETE /api/samples`). It creates contacts, interactions and reminders flagged as samples, so removing them never touches real rows.
+- Real URLs for every page (`/contacts/:id` can be bookmarked), a phone top bar with theme toggle and sign out, toasts, confirm dialogs and bottom-sheet dialogs.
+- [docs/ROADMAP.md](docs/ROADMAP.md): a sourced survey of personal CRMs and the next ten features.
+- CI migrates a scratch database and runs `alembic check` on every PR. After all checks pass on `main`, a migrate job applies pending migrations to Neon.
+
+### Changed
+
+- Migration `52362808c598` adds the new contact columns and the `interactions` and `reminders` tables. It marks the 12 contacts the old seed button created as samples and drops the free-text `last_interaction` column, which `last_contacted_at` replaces.
+
 ## 0.1.2 - 2026-10-18
 
 The backend is ready to import into Vercel, matching ledger-sync's working setup.

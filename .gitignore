@@ -37,3 +37,5 @@ Thumbs.db
 .claude/skills/
 skills-lock.json
 graphify-out/
+# scratch space for agent lanes (contracts, probe scripts, throwaway DBs)
+.scratch/

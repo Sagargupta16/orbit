@@ -52,8 +52,30 @@ jobs:
       - name: Pytest
         run: uv run pytest tests/ -q
 
+      # Every migration must apply from scratch, and the migrated schema must
+      # match the ORM models, before anything reaches the production database.
+      - name: Alembic upgrade on a scratch database
+        env:
+          ORBIT_DATABASE_URL: sqlite:///./ci_migration_check.db
+        run: uv run alembic upgrade head
+
+      - name: Alembic check on the migrated database
+        env:
+          ORBIT_DATABASE_URL: sqlite:///./ci_migration_check.db
+        run: uv run alembic check
+
   security:
     uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@main
     permissions:
       contents: read
       security-events: write
+
+  # Applies pending migrations to Neon once every check on main has passed.
+  migrate:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [frontend, backend, security]
+    uses: ./.github/workflows/migrate.yml
+    permissions:
+      contents: read
+    secrets:
+      ORBIT_DATABASE_URL: ${{ secrets.ORBIT_DATABASE_URL }}

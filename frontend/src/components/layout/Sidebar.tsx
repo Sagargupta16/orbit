@@ -1,22 +1,18 @@
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { primaryNav } from '@/components/layout/nav'
 import { Avatar } from '@/components/ui/Avatar'
 import { MoonIcon, SunIcon } from '@/components/icons'
 import { getStoredTheme, toggleTheme, type Theme } from '@/lib/theme'
 import { useAuth } from '@/lib/auth/useAuth'
 
-interface SidebarProps {
-  active: string
-  onNavigate: (id: string) => void
-}
-
-export function Sidebar({ active, onNavigate }: SidebarProps) {
+export function Sidebar() {
   const [theme, setTheme] = useState<Theme>(() => getStoredTheme())
   const { user, logout } = useAuth()
   const displayName = user?.full_name ?? user?.email ?? 'Account'
 
   return (
-    <aside className="hidden w-[260px] shrink-0 flex-col border-r border-border-hairline bg-surface md:flex">
+    <aside className="sticky top-0 hidden h-dvh w-[260px] shrink-0 flex-col border-r border-border-hairline bg-surface md:flex">
       <div className="flex items-center gap-2 px-5 py-5">
         <span className="flex size-7 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
           o
@@ -26,22 +22,23 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 
       <nav className="flex flex-1 flex-col gap-1 px-3">
         {primaryNav.map((item) => {
-          const isActive = item.id === active
           const Icon = item.icon
           return (
-            <button
+            <NavLink
               key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-3 rounded-control px-3 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-sidebar-active text-sidebar-active-fg'
-                  : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
-              }`}
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-control px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-sidebar-active text-sidebar-active-fg'
+                    : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'
+                }`
+              }
             >
               <Icon width={18} height={18} />
               {item.label}
-            </button>
+            </NavLink>
           )
         })}
       </nav>
