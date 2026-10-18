@@ -54,8 +54,8 @@ def get_http_client(request: Request) -> httpx.AsyncClient:
     """Return a shared httpx client.
 
     Uses the lifespan-created client on app.state when present (local/uvicorn).
-    On Vercel, Mangum runs with lifespan="off" so app.state.http_client is never
-    set -- create one lazily and cache it on app.state so OAuth callbacks work.
+    A serverless runtime may never run the lifespan, leaving app.state.http_client
+    unset -- create one lazily and cache it on app.state so OAuth callbacks work.
     """
     client: httpx.AsyncClient | None = getattr(request.app.state, "http_client", None)
     if client is None:

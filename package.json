@@ -1,6 +1,6 @@
 {
   "name": "orbit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "packageManager": "pnpm@11.10.0",
   "description": "Personal CRM -- contacts, connections, and relationship management dashboard",
   "scripts": {

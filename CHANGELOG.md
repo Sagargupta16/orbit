@@ -6,6 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 0.1.2 - 2026-10-18
+
+The backend is ready to import into Vercel, matching ledger-sync's working setup.
+
+### Changed
+
+- `backend/api/index.py` exports the FastAPI ASGI `app`, which Vercel's Python runtime serves directly. The Mangum wrapper and its dependency are removed.
+- New `backend/requirements.txt` for the Vercel build: pinned runtime dependencies from `uv export`, plus a `.` line that installs the `src/orbit` package itself. Checked by installing it into a clean venv, importing the entry file, and getting `/api/health` 200; the production guard still refuses to start without `ORBIT_JWT_SECRET_KEY`.
+
 ## 0.1.1 - 2026-10-18
 
 A security and repo-health pass: a sign-in fix, four dependency and workflow alerts closed, and CI moved off deprecated actions.
