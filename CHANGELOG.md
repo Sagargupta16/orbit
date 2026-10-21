@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 0.2.1 - 2026-10-21
+
+The README opens with an architecture diagram.
+
+### Added
+
+- [docs/diagrams/architecture.yaml](docs/diagrams/architecture.yaml): the production shape drawn with orrery. The web app on GitHub Pages calls the API on Vercel sin1, which uses Neon PostgreSQL; sign-in goes through GitHub OAuth; GitHub Actions deploys the web app and runs Alembic migrations on main. Every node and edge carries `evidence:` pointing at the file and line it comes from. Rendered to `architecture-dark.svg` and `architecture-light.svg`, which the README shows by the reader's color scheme.
+
 ## 0.2.0 - 2026-10-18
 
 orbit becomes a working personal CRM. The four "coming soon" pages are real, and contacts can be managed end to end.

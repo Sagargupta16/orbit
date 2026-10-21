@@ -4,6 +4,14 @@ Personal CRM -- the people in your orbit, managed. Track contacts, connections, 
 
 Live at [sagargupta.online/orbit](https://sagargupta.online/orbit/). Sign in with GitHub.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/architecture-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/diagrams/architecture-light.svg">
+  <img width="880" src="docs/diagrams/architecture-light.svg" alt="orbit architecture in production. You open the orbit web app (React 19, Vite, Zustand) served from GitHub Pages. It calls the orbit API (FastAPI, SQLAlchemy 2) on Vercel in sin1 over REST with a JWT, and the API reads and writes Neon PostgreSQL in Singapore through psycopg 3. Sign-in redirects the browser to GitHub OAuth, and the API exchanges the returned code with GitHub. On push to main, GitHub Actions deploys the web app to Pages and runs alembic upgrade against Neon. In dev the API runs on port 8000 with SQLite, behind the Vite /api proxy.">
+</picture>
+
+The spec behind the picture is [`docs/diagrams/architecture.yaml`](docs/diagrams/architecture.yaml), rendered with [orrery](https://github.com/Sagargupta16/orrery).
+
 ## What it does
 
 - **Dashboard**: who to reach out to today, upcoming reminders and birthdays, recent activity, circle sizes.
