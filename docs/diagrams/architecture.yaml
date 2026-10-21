@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Sagargupta16/orrery/main/skills/orrery/references/diagram.schema.json
+# Rendered with orrery (github.com/Sagargupta16/orrery):
+#   orrery render docs/diagrams/architecture.yaml -o docs/diagrams/architecture -f svg --theme both
+# Reviewed at README width: orrery review docs/diagrams/architecture.yaml --width 880
+title: orbit architecture
+subtitle: "Production. In dev the API runs on :8000 with SQLite, behind the Vite /api proxy."
+direction: right
+layout:
+  spacing: compact
+legend:
+  dashed: GitHub Actions on push to main
+
+groups:
+  pages: { type: box, label: GitHub Pages, icon: logos:github-icon, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }
+  vercel: { type: box, label: Vercel sin1, icon: logos:vercel-icon, evidence: "backend/vercel.json:2#sin1" }
+
+nodes:
+  user: { icon: tabler:user, label: You, note: browser or phone }
+  spa:
+    icon: logos:react
+    label: orbit web app
+    note: "React 19, Vite, Zustand"
+    in: pages
+    evidence: "frontend/src/main.tsx:11#createRoot"
+  api:
+    icon: logos:fastapi-icon
+    label: orbit API
+    note: "FastAPI, SQLAlchemy 2"
+    in: vercel
+    evidence: ["backend/api/index.py:3#app", "backend/src/orbit/api/main.py:34#FastAPI"]
+  db:
+    icon: logos:neon-icon
+    label: Neon PostgreSQL
+    note: Singapore
+    evidence: ["backend/src/orbit/config/settings.py:8#ORBIT_DATABASE_URL", "CLAUDE.md:15#Singapore"]
+  oauth:
+    icon: logos:github-icon
+    label: GitHub OAuth
+    note: sign-in only
+    evidence: "backend/src/orbit/api/oauth.py:33#_GITHUB_AUTHORIZE_URL"
+  actions:
+    icon: logos:github-actions
+    label: GitHub Actions
+    note: on push to main
+    evidence: [".github/workflows/deploy-frontend.yml:5#main", ".github/workflows/ci.yml:77#migrate.yml"]
+
+edges:
+  - user -> spa
+  - spa -> api: { label: REST + JWT, evidence: "frontend/src/lib/auth/client.ts:11#Authorization" }
+  - api -> db: { label: psycopg 3, evidence: "backend/src/orbit/db/session.py:35#create_engine" }
+  - spa -> oauth: { label: sign-in redirect, evidence: "frontend/src/lib/auth/useAuth.ts:63#authorize_url" }
+  - api -> oauth: { label: code exchange, evidence: "backend/src/orbit/api/oauth.py:164#_GITHUB_TOKEN_URL" }
+  - actions --> pages: { label: deploy, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }
+  - actions --> db: { label: alembic upgrade, evidence: ".github/workflows/migrate.yml:44#alembic" }
