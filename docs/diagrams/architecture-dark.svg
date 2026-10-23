@@ -1,58 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1150" height="522" viewBox="0 0 1150 522" role="img" aria-labelledby="architecture-dark-sdw-title architecture-dark-sdw-desc" font-family="&#39;Geist Mono&#39;, ui-monospace, SFMono-Regular, Menlo, Consolas, &#39;Liberation Mono&#39;, monospace">
-<metadata><orrery:spec xmlns:orrery="https://sagargupta.online/orrery/spec" version="1"># yaml-language-server: $schema=https://raw.githubusercontent.com/Sagargupta16/orrery/main/skills/orrery/references/diagram.schema.json&#13;
-# Rendered with orrery (github.com/Sagargupta16/orrery):&#13;
-#   orrery render docs/diagrams/architecture.yaml -o docs/diagrams/architecture -f svg --theme both&#13;
-# Reviewed at README width: orrery review docs/diagrams/architecture.yaml --width 880&#13;
-title: orbit architecture&#13;
-subtitle: "Production. In dev the API runs on :8000 with SQLite, behind the Vite /api proxy."&#13;
-direction: right&#13;
-layout:&#13;
-  spacing: compact&#13;
-legend:&#13;
-  dashed: GitHub Actions on push to main&#13;
-&#13;
-groups:&#13;
-  pages: { type: box, label: GitHub Pages, icon: logos:github-icon, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }&#13;
-  vercel: { type: box, label: Vercel sin1, icon: logos:vercel-icon, evidence: "backend/vercel.json:2#sin1" }&#13;
-&#13;
-nodes:&#13;
-  user: { icon: tabler:user, label: You, note: browser or phone }&#13;
-  spa:&#13;
-    icon: logos:react&#13;
-    label: orbit web app&#13;
-    note: "React 19, Vite, Zustand"&#13;
-    in: pages&#13;
-    evidence: "frontend/src/main.tsx:11#createRoot"&#13;
-  api:&#13;
-    icon: logos:fastapi-icon&#13;
-    label: orbit API&#13;
-    note: "FastAPI, SQLAlchemy 2"&#13;
-    in: vercel&#13;
-    evidence: ["backend/api/index.py:3#app", "backend/src/orbit/api/main.py:34#FastAPI"]&#13;
-  db:&#13;
-    icon: logos:neon-icon&#13;
-    label: Neon PostgreSQL&#13;
-    note: Singapore&#13;
-    evidence: ["backend/src/orbit/config/settings.py:8#ORBIT_DATABASE_URL", "CLAUDE.md:15#Singapore"]&#13;
-  oauth:&#13;
-    icon: logos:github-icon&#13;
-    label: GitHub OAuth&#13;
-    note: sign-in only&#13;
-    evidence: "backend/src/orbit/api/oauth.py:33#_GITHUB_AUTHORIZE_URL"&#13;
-  actions:&#13;
-    icon: logos:github-actions&#13;
-    label: GitHub Actions&#13;
-    note: on push to main&#13;
-    evidence: [".github/workflows/deploy-frontend.yml:5#main", ".github/workflows/ci.yml:77#migrate.yml"]&#13;
-&#13;
-edges:&#13;
-  - user -> spa&#13;
-  - spa -> api: { label: REST + JWT, evidence: "frontend/src/lib/auth/client.ts:11#Authorization" }&#13;
-  - api -> db: { label: psycopg 3, evidence: "backend/src/orbit/db/session.py:35#create_engine" }&#13;
-  - spa -> oauth: { label: sign-in redirect, evidence: "frontend/src/lib/auth/useAuth.ts:63#authorize_url" }&#13;
-  - api -> oauth: { label: code exchange, evidence: "backend/src/orbit/api/oauth.py:164#_GITHUB_TOKEN_URL" }&#13;
-  - actions --> pages: { label: deploy, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }&#13;
-  - actions --> db: { label: alembic upgrade, evidence: ".github/workflows/migrate.yml:44#alembic" }&#13;
+<metadata><orrery:spec xmlns:orrery="https://sagargupta.online/orrery/spec" version="1"># yaml-language-server: $schema=https://raw.githubusercontent.com/Sagargupta16/orrery/main/skills/orrery/references/diagram.schema.json
+# Rendered with orrery (github.com/Sagargupta16/orrery):
+#   orrery render docs/diagrams/architecture.yaml -o docs/diagrams/architecture -f svg --theme both
+# Reviewed at README width: orrery review docs/diagrams/architecture.yaml --width 880
+title: orbit architecture
+subtitle: "Production. In dev the API runs on :8000 with SQLite, behind the Vite /api proxy."
+direction: right
+layout:
+  spacing: compact
+legend:
+  dashed: GitHub Actions on push to main
+
+groups:
+  pages: { type: box, label: GitHub Pages, icon: logos:github-icon, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }
+  vercel: { type: box, label: Vercel sin1, icon: logos:vercel-icon, evidence: "backend/vercel.json:2#sin1" }
+
+nodes:
+  user: { icon: tabler:user, label: You, note: browser or phone }
+  spa:
+    icon: logos:react
+    label: orbit web app
+    note: "React 19, Vite, Zustand"
+    in: pages
+    evidence: "frontend/src/main.tsx:11#createRoot"
+  api:
+    icon: logos:fastapi-icon
+    label: orbit API
+    note: "FastAPI, SQLAlchemy 2"
+    in: vercel
+    evidence: ["backend/api/index.py:3#app", "backend/src/orbit/api/main.py:34#FastAPI"]
+  db:
+    icon: logos:neon-icon
+    label: Neon PostgreSQL
+    note: Singapore
+    evidence: ["backend/src/orbit/config/settings.py:8#ORBIT_DATABASE_URL", "CLAUDE.md:15#Singapore"]
+  oauth:
+    icon: logos:github-icon
+    label: GitHub OAuth
+    note: sign-in only
+    evidence: "backend/src/orbit/api/oauth.py:33#_GITHUB_AUTHORIZE_URL"
+  actions:
+    icon: logos:github-actions
+    label: GitHub Actions
+    note: on push to main
+    evidence: [".github/workflows/deploy-frontend.yml:5#main", ".github/workflows/ci.yml:77#migrate.yml"]
+
+edges:
+  - user -> spa
+  - spa -> api: { label: REST + JWT, evidence: "frontend/src/lib/auth/client.ts:11#Authorization" }
+  - api -> db: { label: psycopg 3, evidence: "backend/src/orbit/db/session.py:35#create_engine" }
+  - spa -> oauth: { label: sign-in redirect, evidence: "frontend/src/lib/auth/useAuth.ts:63#authorize_url" }
+  - api -> oauth: { label: code exchange, evidence: "backend/src/orbit/api/oauth.py:164#_GITHUB_TOKEN_URL" }
+  - actions --> pages: { label: deploy, evidence: ".github/workflows/deploy-frontend.yml:79#deploy-pages" }
+  - actions --> db: { label: alembic upgrade, evidence: ".github/workflows/migrate.yml:44#alembic" }
 </orrery:spec></metadata>
 <title id="architecture-dark-sdw-title">orbit architecture</title>
 <desc id="architecture-dark-sdw-desc">orbit architecture. 6 components in 2 groups. Connections: You to orbit web app; orbit web app to orbit API (REST + JWT); orbit API to Neon PostgreSQL (psycopg 3); orbit web app to GitHub OAuth (sign-in redirect); orbit API to GitHub OAuth (code exchange); GitHub Actions to GitHub Pages (deploy); GitHub Actions to Neon PostgreSQL (alembic upgrade).</desc>
