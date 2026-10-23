@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 0.2.2 - 2026-10-23
+
+The architecture diagram is redrawn with orrery 0.12.0's 64 px icons.
+
+### Changed
+
+- `docs/diagrams/architecture-dark.svg` and `architecture-light.svg` are re-rendered with orrery 0.12.0, which draws icon tiles at 64 px instead of 48. The spec is unchanged; the canvas grows from 1150 x 492 to 1150 x 522 and `orrery review --width 880` scores 98.
+
 ## 0.2.1 - 2026-10-21
 
 The README opens with an architecture diagram.
