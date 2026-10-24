@@ -1,6 +1,6 @@
 [project]
 name = "orbit"
-version = "0.2.2"
+version = "0.2.3"
 description = "Personal CRM backend -- contacts, connections, and interaction tracking"
 requires-python = ">=3.13"
 license = { text = "MIT" }

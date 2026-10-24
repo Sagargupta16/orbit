@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 0.2.3 - 2026-10-24
+
+The backend lockfile picks up the certifi security fix.
+
+### Security
+
+- `backend/uv.lock` moves certifi from 2026.6.17 to 2026.10.23, which fixes GHSA-6q48-6c7w-9gw2 (critical). The earlier Renovate bump (#14) only changed `backend/requirements.txt`, so `uv sync` in CI and the migrate job still installed the vulnerable release. `backend/requirements.txt` now pins the same 2026.10.23 so Vercel and the lockfile agree.
+
 ## 0.2.2 - 2026-10-23
 
 The architecture diagram is redrawn with orrery 0.12.0's 64 px icons.
